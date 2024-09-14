@@ -1,9 +1,0 @@
-{
-    "name": "materials-data-ingestion",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "frontend": "cd ./frontend && npm run start",
-        "backend": "cd ./backend && npm run start"
-    }
-}
