@@ -1,5 +1,4 @@
 const { neon } = require('@neondatabase/serverless');
-const alloy = require('./alloy');
 require('dotenv').config();
 
 let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;

@@ -1,7 +1,8 @@
-import { sql } from 'db';
+const db = require('./db');
+const sql = db.sql;
 
 // Create a new user
-export const createUser = async (name) => {
+const createUser = async (name) => {
     try {
         const result = await sql`
             INSERT INTO users (name)
@@ -16,7 +17,7 @@ export const createUser = async (name) => {
 };
 
 // Read a user by ID
-export const getUserById = async (id) => {
+const getUserById = async (id) => {
     try {
         const result = await sql`
             SELECT * FROM users
@@ -30,7 +31,7 @@ export const getUserById = async (id) => {
 };
 
 // Update a user by ID
-export const updateUserById = async (id, name) => {
+const updateUserById = async (id, name) => {
     try {
         const result = await sql`
             UPDATE users
@@ -46,7 +47,7 @@ export const updateUserById = async (id, name) => {
 };
 
 // Delete a user by ID
-export const deleteUserById = async (id) => {
+const deleteUserById = async (id) => {
     try {
         const result = await sql`
             DELETE FROM users
@@ -58,4 +59,11 @@ export const deleteUserById = async (id) => {
         console.error('Error deleting user:', error);
         throw error;
     }
+};
+
+module.exports = {
+    createUser,
+    getUserById,
+    updateUserById,
+    deleteUserById
 };

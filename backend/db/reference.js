@@ -1,6 +1,7 @@
-import { sql } from 'db';
+const db = require('./db');
+const sql = db.sql;
 
-export const createReference = async (prompt, response, userId) => {
+const createReference = async (prompt, response, userId) => {
     return await sql`
         INSERT INTO Reference (prompt, response, userId)
         VALUES (${prompt}, ${response}, ${userId})
@@ -8,14 +9,14 @@ export const createReference = async (prompt, response, userId) => {
     `;
 };
 
-export const getReferenceById = async (id) => {
+const getReferenceById = async (id) => {
     return await sql`
         SELECT * FROM Reference
         WHERE id = ${id};
     `;
 };
 
-export const updateReference = async (id, prompt, response) => {
+const updateReference = async (id, prompt, response) => {
     return await sql`
         UPDATE Reference
         SET prompt = ${prompt}, response = ${response}
@@ -24,14 +25,14 @@ export const updateReference = async (id, prompt, response) => {
     `;
 };
 
-export const deleteReference = async (id) => {
+const deleteReference = async (id) => {
     return await sql`
         DELETE FROM Reference
         WHERE id = ${id};
     `;
 };
 
-export const getReference = async (req, res) => {
+const getReference = async (req, res) => {
     try {
         const { id } = req.params;
         const reference = await getReferenceById(id);
@@ -44,7 +45,7 @@ export const getReference = async (req, res) => {
     }
 };
 
-export const postReference = async (req, res) => {
+const postReference = async (req, res) => {
     try {
         const { prompt, response, userId } = req.body;
         const newReference = await createReference(prompt, response, userId);
@@ -52,4 +53,13 @@ export const postReference = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
+};
+
+module.exports = {
+    createReference,
+    getReferenceById,
+    updateReference,
+    deleteReference,
+    getReference,
+    postReference
 };

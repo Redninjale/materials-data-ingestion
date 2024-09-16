@@ -1,6 +1,7 @@
-import { sql } from 'db';
+const db = require('./db');
+const sql = db.sql;
 
-export const createAlloyReference = async (alloyId, referenceId, properties) => {
+const createAlloyReference = async (alloyId, referenceId, properties) => {
     try {
         await sql`
             INSERT INTO AlloyReference (alloyId, referenceId, properties)
@@ -11,7 +12,7 @@ export const createAlloyReference = async (alloyId, referenceId, properties) => 
     }
 };
 
-export const getAlloyReference = async (alloyId, referenceId) => {
+const getAlloyReference = async (alloyId, referenceId) => {
     try {
         const result = await sql`
             SELECT * FROM AlloyReference
@@ -23,7 +24,7 @@ export const getAlloyReference = async (alloyId, referenceId) => {
     }
 };
 
-export const updateAlloyReference = async (alloyId, referenceId, properties) => {
+const updateAlloyReference = async (alloyId, referenceId, properties) => {
     try {
         await sql`
             UPDATE AlloyReference
@@ -35,7 +36,7 @@ export const updateAlloyReference = async (alloyId, referenceId, properties) => 
     }
 };
 
-export const deleteAlloyReference = async (alloyId, referenceId) => {
+const deleteAlloyReference = async (alloyId, referenceId) => {
     try {
         await sql`
             DELETE FROM AlloyReference
@@ -44,4 +45,11 @@ export const deleteAlloyReference = async (alloyId, referenceId) => {
     } catch (error) {
         console.error('Error deleting alloy reference:', error);
     }
+};
+
+module.exports = {
+    createAlloyReference,
+    getAlloyReference,
+    updateAlloyReference,
+    deleteAlloyReference
 };
