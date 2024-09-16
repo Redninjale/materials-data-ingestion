@@ -1,0 +1,61 @@
+import { sql } from 'db';
+
+// Create a new user
+export const createUser = async (name) => {
+    try {
+        const result = await sql`
+            INSERT INTO users (name)
+            VALUES (${name})
+            RETURNING *;
+        `;
+        return result[0];
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+};
+
+// Read a user by ID
+export const getUserById = async (id) => {
+    try {
+        const result = await sql`
+            SELECT * FROM users
+            WHERE id = ${id};
+        `;
+        return result[0];
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        throw error;
+    }
+};
+
+// Update a user by ID
+export const updateUserById = async (id, name) => {
+    try {
+        const result = await sql`
+            UPDATE users
+            SET name = ${name}
+            WHERE id = ${id}
+            RETURNING *;
+        `;
+        return result[0];
+    } catch (error) {
+        console.error('Error updating user:', error);
+        throw error;
+    }
+};
+
+// Delete a user by ID
+export const deleteUserById = async (id) => {
+    try {
+        const result = await sql`
+            DELETE FROM users
+            WHERE id = ${id}
+            RETURNING *;
+        `;
+        return result[0];
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        throw error;
+    }
+};

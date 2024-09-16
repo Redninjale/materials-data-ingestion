@@ -2,11 +2,12 @@ import {useEffect, useState} from "react";
 import { set, useForm } from 'react-hook-form';
 import axios from "axios";
 
-const InputBar = () => {
-    const [LLMInput, setLLMInput] = useState();
+const ContentForm = () => {
+    const [LLMChat, setLLMChat] = useState([]);
+    const [LLMOutput, setLLMOutput] = useState();
     const { register, handleSubmit } = useForm();
 
-    function getLLM(data) {
+    function getOutput(data) {
         console.log(JSON.stringify(data.llm_input))
         axios.post("http://localhost:8000/api/llm", {
             headers: {
@@ -31,11 +32,23 @@ const InputBar = () => {
 
     return (
         <div>
-            <form onSubmit={handleSubmit(getLLM)} >
+            {
+                LLMChat.map(() => {
+                    return (
+                        <div>
+                            
+                        </div>
+                    );
+                })
+            }
+            <form onSubmit={handleSubmit(getOutput)} >
                 <div>
                     <label>Enter your message:</label>
                     <input {...register("llm_input")} type="text" />
                 </div>
+                {/* <div>
+                    <input type="file" accept="image/png, image/jpeg" />
+                </div> */}
                 <button type='submit'>Submit</button>
             </form>
         </div>
