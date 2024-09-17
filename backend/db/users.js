@@ -30,6 +30,21 @@ const getUserById = async (id) => {
     }
 };
 
+// Get the first user
+const getFirstUser = async () => {
+    try {
+        const result = await sql`
+            SELECT * FROM users
+            ORDER BY id
+            LIMIT 1;
+        `;
+        return result[0];
+    } catch (error) {
+        console.error('Error fetching first user:', error);
+        throw error;
+    }
+};
+
 // Update a user by ID
 const updateUserById = async (id, name) => {
     try {
@@ -62,6 +77,7 @@ const deleteUserById = async (id) => {
 };
 
 module.exports = {
+    getFirstUser,
     createUser,
     getUserById,
     updateUserById,

@@ -56,12 +56,8 @@ const graphSchema = {
       },
       required: ["title", "hAxis", "vAxis"]
     },
-    information: {
-        type: SchemaType.STRING,
-        description: "Give a description of the graph. It can be 1-2 sentences describing on data analysis, depiction of the graph, or the graph layout"
-    }
   },
-  required: ["chartType", "data", "options", "information"]
+  required: ["chartType", "data", "options"]
 };
 
 const tableSchema = {
@@ -103,27 +99,8 @@ const tableSchema = {
       type: SchemaType.STRING,
       description: "The size of the table. Can be 'sm' for small tables.",
     },
-    information: {
-        type: SchemaType.STRING,
-        description: "Give a description of the table. It can be 1-2 sentences describing on data analysis, depiction of the table, or the table context"
-    }
   },
-  required: ["headers", "rows", "information"]
-}
-
-const textSchema = {
-    type: SchemaType.OBJECT,
-    properties: {
-        title: {
-            type: SchemaType.STRING,
-            description: "The title of the text content.",
-        },
-        body: {
-            type: SchemaType.STRING,
-            description: "The main body of the text content.",
-        },
-    },
-    required: ["title", "body"]
+  required: ["headers", "rows"]
 }
 
 const generalizedSchema = {
@@ -146,11 +123,13 @@ const generalizedSchema = {
         { "enum" : "table"},
       ]
     },
-    text: {
-      type: SchemaType.OBJECT,
-      description: `Schema for text content. Only include if data_type is 'text'. Schema for displaying tables using react-bootstrap. 
-      Supports table headers and rows.`,
-      ...textSchema
+    title: {
+        type: SchemaType.STRING,
+        description: "The title of the any content.",
+    },
+    body: {
+        type: SchemaType.STRING,
+        description: "The main body of the any content. Give a description of the content. It can be 1-2 sentences describing on data analysis, depiction of the content, or the context around the content",
     },
     graph: {
       type: SchemaType.OBJECT,
@@ -223,7 +202,7 @@ const generalizedSchema = {
           },
       },
     },
-  required: ["data_type"]
+  required: ["data_type", "title", "body"]
 };
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", 
@@ -260,19 +239,35 @@ async function sendModel(req, res) {
         `
             Important: for all outputs, Only use data that is cross-referenced with research papers, government websites, organization websites, 
                 journal websites, and educational websites.
+            When prompted with an alloy, metal, and any materials ensure that you are providing tags with names and properties
             Important: Only return a single piece of valid JSON text.
 
             Here is the prompt:
         ` + prompt);
         
         console.log(JSON.parse(result.response.text()));
-        parsed_resp = JSON.parse(result.response.text())
+        const parsed_resp = JSON.parse(result.response.text());
+        const stringify = JSON.stringify(result.response.text());
+
+        user = await users.getFirstUser();
+        ref = await reference.createReference(prompt, stringify, user.id);
+        // console.log("INSERTED TO REFERENCE, Added ", ref);
+        
         if (parsed_resp.tags) {
-            console.log(tags)
-            alloy.searchAlloysByName()
+            parsed_resp.tags.map(async (tag) => {
+                let result = await alloy.searchAlloysByName(tag.name.toLowerCase());
+                // console.log(result);
+                if (result.length === 0) {
+                  result = await alloy.insertAlloy(tag.name.toLowerCase());
+                  console.log("INSERTED TO ALLOY, Added ", result);
+                }
+
+                alloy_ref = await alloyReference.createAlloyReference(result[0].id, ref[0].id, tag.property);
+                console.log("INSERTED TO ALLOY_REFERENCE, Added ", alloy_ref);
+            });
         }
 
-        res.send(JSON.stringify(result.response.text()));
+        res.send(stringify);
     } catch (error) {
       console.log(error);
       res.send(error)

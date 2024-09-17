@@ -6,6 +6,7 @@ const createAlloyReference = async (alloyId, referenceId, properties) => {
         await sql`
             INSERT INTO AlloyReference (alloyId, referenceId, properties)
             VALUES (${alloyId}, ${referenceId}, ${properties})
+            RETURNING *;
         `;
     } catch (error) {
         console.error('Error creating alloy reference:', error);

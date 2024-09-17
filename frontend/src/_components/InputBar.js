@@ -11,8 +11,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const ContentForm = () => {
     const [LLMInput, setLLMInput] = useState();
     const [LLMChat, setLLMChat] = useState([{
-        "prompt": "dwada",
-        "information": "this is an example graph",
+        "prompt": "Give me an example of a line graph",
+        "title": "this is an example graph",
+        "body": "Line graph from react-google-charts",
         "data_type": "graph",
         "graph": {
             "chartType": "LineChart",
@@ -38,6 +39,9 @@ const ContentForm = () => {
         }
     },
     {
+        "prompt": "Give me an example of a table",
+        "title": "this is an example table",
+        "body": "Table from bootstrap",
         "data_type": "table",
         "table": {
             "headers": ["Name", "Age", "Country"],
@@ -49,6 +53,9 @@ const ContentForm = () => {
         }
     },
     {
+        "prompt": "Give me an example of a scatter plot",
+        "title": "this is an example graph",
+        "body": "scatterplot graph from react-google-charts",
         "data_type": "graph",
         "graph": {
             "chartType": "ScatterChart",
@@ -93,8 +100,10 @@ const ContentForm = () => {
                 throw Error(JSON.stringify(resp));
             }
             console.log(JSON.parse(resp.data));
-            // setLLMOutput(resp.data);
-            setLLMChat([...LLMChat, JSON.parse(resp.data)]);
+            setLLMChat([...LLMChat, {
+                "prompt": data.llm_input,
+                ...JSON.parse(resp.data)
+            }]);
         }).catch(error => {
             console.log("Failed to send to LLM", error);
         })
@@ -118,16 +127,19 @@ const ContentForm = () => {
     return (
         <div className='align-content-center justify-content-center' style={{ width: '80vw'}}>
             <div className='align-content-center justify-content-center' style={{ overflowY: 'scroll',  maxHeight:"80vh"}}>
-                <Stack direction="vertical" className='p-4 w-50 mx-auto' gap={4}>
+                <Stack direction="vertical" className='p-4 w-75 mx-auto' gap={4}>
                     {
                         LLMChat.map((output, index) => {
                             return (
-                                <Stack key={index} className=' font-weight-bold'>
-                                    <span style={{ textAlign: "left", color: "#000FFF"}}>
+                                <Stack key={index}  className="p-4 rounded" style={{ textAlign: "left", fontSize: '20px', backgroundColor: "#404040" }}>
+                                    <span style={{ textAlign: "left", color: "#B0B0B0"}}>
                                         user prompt: {output.prompt}
                                     </span>
+                                    <h1 style={{ fontSize: "30px" }}>
+                                        Title: {output.title}
+                                    </h1>
                                     <p style={{ textAlign: "left"}}>
-                                        {output.information}
+                                        {output.body}
                                     </p>
                                     <Card className='p-2'>
                                         {output['data_type'] === "graph" ? (
@@ -157,7 +169,7 @@ const ContentForm = () => {
                                                     saveAs(imgUri, 'chart.png');
                                                 }}>Download Chart</Button>
                                             </>
-                                        ) : output['data_type'] === "table" ? (
+                                        ) : output['data_type'] === "table" && (
                                             <>
                                                 <Table striped bordered hover>
                                                     <thead>
@@ -186,11 +198,6 @@ const ContentForm = () => {
                                                     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                                                     saveAs(blob, 'table.csv');
                                                 }}>Download Table</Button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <h1>{output.text.title}</h1>
-                                                <p>{output.text.body}</p>
                                             </>
                                         )}
                                 </Card>

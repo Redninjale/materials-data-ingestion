@@ -2,7 +2,7 @@ const db = require('./db');
 const sql = db.sql;
 
 async function insertAlloy(name) {
-    return await sql`INSERT INTO Alloys (alloyName) VALUES (${name})`;
+    return await sql`INSERT INTO Alloys (alloyName) VALUES (${name}) RETURNING *`;
 }
 
 async function updateAlloy(id, name) {
