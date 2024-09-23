@@ -37,7 +37,7 @@
     "eject": "react-scripts eject",
     "server": "nodemon src/backend/server.js",
     "start": "node src/backend/server.js",
-    "start2": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "eslintConfig": {
     "extends": [
