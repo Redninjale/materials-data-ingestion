@@ -2,12 +2,18 @@
 
 Run locally doing
 
-To install concurrently
+### To install the dependencies, run
 ```
+cd frontend
 npm install
 ```
-Using concurrently, the frontend and backend are ran together
+
+### Using concurrently, the frontend and backend are ran together
 ```
-npm run install
 npm run start
+```
+
+### For development, run
+```
+npm run dev
 ```
