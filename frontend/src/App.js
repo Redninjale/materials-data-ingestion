@@ -1,7 +1,5 @@
-import logo from './logo.svg';
 import './App.css';
-import { useState } from 'react';
-import ContentForm from './_components/InputBar';
+import ContentForm from './_components/ContentForm';
 import SideBar from './_components/SideBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
