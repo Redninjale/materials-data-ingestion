@@ -1,0 +1,21 @@
+h1 {
+    font-size: xx-large;
+}
+
+h2 {
+    font-size: x-large;
+    margin: 0;
+}
+
+.md-font {
+    font-size: medium;
+}
+
+p {
+    font-size: medium;
+    margin-bottom: 0;
+}
+
+a {
+    font-size: medium;
+}

@@ -7,6 +7,8 @@ import Table from 'react-bootstrap/esm/Table';
 import { Container, Row, Col, Stack, Button, Form, Nav, Card } from 'react-bootstrap';
 import { PlusCircle, Gear, Settings, Send, Person, ChatDots } from 'react-bootstrap-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './contentform.css';
+import Markdown from 'react-markdown'
 
 const ContentForm = () => {
     const [LLMInput, setLLMInput] = useState();
@@ -81,7 +83,6 @@ const ContentForm = () => {
         }
     }
     ]);
-    const { register, handleSubmit } = useForm();
 
     function getOutput(data) {
         console.log(JSON.stringify(data.llm_input))
@@ -131,19 +132,36 @@ const ContentForm = () => {
                     {
                         LLMChat.map((output, index) => {
                             return (
-                                <Stack key={index}  className="p-4 rounded" style={{ textAlign: "left", fontSize: '20px', backgroundColor: "#404040" }}>
-                                    <span style={{ textAlign: "left", color: "#B0B0B0"}}>
-                                        user prompt: {output.prompt}
-                                    </span>
-                                    <h1 style={{ fontSize: "30px" }}>
-                                        Title: {output.title}
-                                    </h1>
-                                    <p style={{ textAlign: "left"}}>
-                                        {output.body}
-                                    </p>
-                                    <Card className='p-2'>
+                                <Stack key={index}  gap={4} className="p-4 rounded" style={{ textAlign: "left", fontSize: '20px', backgroundColor: "#404040" }}>
+                                    <div>
+                                        <h2 style={{ textAlign: "left", color: "#B0B0B0"}}>
+                                            user prompt: {output.prompt}
+                                        </h2>
+                                        <h1>
+                                            {output.title}
+                                        </h1>
+                                        <Markdown className="md-font" style={{ textAlign: "left" }}>
+                                            {output.body}
+                                        </Markdown>
+                                    </div>
+                                    { output.links && 
+                                    (
+                                    <div>
+                                        <h2>Reference Links:</h2>
+                                        <ul>
+                                            {output.links && output.links.map((link) => {
+                                                return (
+                                                    <li>
+                                                        <p>{link.description}</p>
+                                                        <a href={link.url}>{link.url}</a>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>)}
+                                    <>
                                         {output['data_type'] === "graph" ? (
-                                            <>
+                                            <Card className='p-2'>
                                                 <Chart
                                                     chartType={output.graph.chartType}
                                                     width="100%"
@@ -168,9 +186,9 @@ const ContentForm = () => {
                                                     const imgUri = chart.getImageURI();
                                                     saveAs(imgUri, 'chart.png');
                                                 }}>Download Chart</Button>
-                                            </>
+                                            </Card>
                                         ) : output['data_type'] === "table" && (
-                                            <>
+                                            <Card className='p-2'>
                                                 <Table striped bordered hover>
                                                     <thead>
                                                         <tr>
@@ -198,12 +216,12 @@ const ContentForm = () => {
                                                     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                                                     saveAs(blob, 'table.csv');
                                                 }}>Download Table</Button>
-                                            </>
+                                            </Card>
                                         )}
-                                </Card>
-                            </Stack>);
-                        })
+                                    </>
+                                </Stack>);
                         }
+                    )}
                 </Stack>
             </div>
             <div className='mx-auto p-3 border-top w-75 d-flex'>

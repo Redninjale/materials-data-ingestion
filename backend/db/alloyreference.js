@@ -48,7 +48,23 @@ const deleteAlloyReference = async (alloyId, referenceId) => {
     }
 };
 
+const getAlloyPropertiesByNames = async (alloyNames) => {
+    const formattedAlloyNames = alloyNames.map(name => name.replace(/"/g, ''));
+    try {
+        const result = await sql`
+            SELECT a.alloyName as name, ar.properties
+            FROM Alloys a
+            JOIN AlloyReference ar ON a.id = ar.alloyId
+            WHERE a.alloyName = ANY(${alloyNames})
+        `;
+        return result;
+    } catch (error) {
+        console.error('Error fetching alloy properties by names:', error);
+    }
+};
+
 module.exports = {
+    getAlloyPropertiesByNames,
     createAlloyReference,
     getAlloyReference,
     updateAlloyReference,

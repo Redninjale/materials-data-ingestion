@@ -103,6 +103,15 @@ const tableSchema = {
   required: ["headers", "rows"]
 }
 
+const findTagsSchema = {
+  description: "Parse the given text to find all the alloy tags existing in the database",
+  type: SchemaType.ARRAY,
+  items: {
+    type: SchemaType.STRING,
+    description: "A single alloy mentioned in the text"
+  }
+}
+
 const generalizedSchema = {
   description: "Generalized schema that can represent text, graph, or table data.",
   type: SchemaType.OBJECT,
@@ -165,6 +174,8 @@ const generalizedSchema = {
         Iron_Chromium_Nickel Alloys,
         Aluminum_Lithium Alloys,
         Titanium_Aluminum Alloys,
+        AZ31,
+        SS316,
         Zirconium Alloys as well as all others from https://www.material-insights.org`,
       items: {
           type: SchemaType.OBJECT,
@@ -202,7 +213,7 @@ const generalizedSchema = {
           },
       },
     },
-  required: ["data_type", "title", "body"]
+  required: ["data_type", "title", "body", "links"]
 };
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", 
@@ -210,7 +221,14 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash",
     responseMimeType: "application/json",
     responseSchema: generalizedSchema,
     maxOutputTokens: 2048,
-} });
+}});
+
+const parseModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash", 
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: findTagsSchema,
+      maxOutputTokens: 1024,
+}});
 
 
 const chat = model.startChat({
@@ -235,13 +253,37 @@ async function sendModel(req, res) {
     console.log("Working", req.body.data);
     let prompt = req.body.data
     try {
+        const tags = await alloy.getAlloys();
+        console.log(tags)
+        
+        const foundTags = await parseModel.generateContent(
+            `
+            Parse the prompt to find only alloys mentioned in the prompt and inside the alloy database.
+            
+            These are the alloys inside the database ${tags}
+
+            The prompt is given as`
+            + prompt);
+        console.log(JSON.parse(foundTags.response.text()))
+        console.log(foundTags.response.text())
+        const getReferenceData = await alloyReference.getAlloyPropertiesByNames(JSON.parse(foundTags.response.text()));
+        console.log(getReferenceData)
+        ref = ""
+        if (getReferenceData !== null) {
+            console.log("printing")
+            ref = `Use this supplementary data to use about the tagged alloys to adjust and improve your response:
+                ${getReferenceData}`
+        }
+
         const result = await chat.sendMessage(
         `
             Important: for all outputs, Only use data that is cross-referenced with research papers, government websites, organization websites, 
-                journal websites, and educational websites.
+                journal websites, and educational websites. You must be 80% confident that the data you are using and outputting is accurate.
+
             When prompted with an alloy, metal, and any materials ensure that you are providing tags with names and properties
             Important: Only return a single piece of valid JSON text.
 
+            ${ref}
             Here is the prompt:
         ` + prompt);
         
