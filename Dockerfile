@@ -19,5 +19,5 @@ RUN npm install -g concurrently
 EXPOSE 8080
 
 # Run both frontend and backend
-CMD ["concurrently", "\"npm run start --prefix backend\"", "\"npm run start --prefix frontend\""]
+CMD ["concurrently", "\"npm run start --prefix frontend\"", "\"npm run start --prefix backend\""]
 

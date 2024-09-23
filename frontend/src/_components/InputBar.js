@@ -1,17 +1,15 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { saveAs } from 'file-saver';
-import axios from 'axios';
 import { Chart } from 'react-google-charts';
 import Table from 'react-bootstrap/esm/Table';
-import { Container, Row, Col, Stack, Button, Form, Nav, Card } from 'react-bootstrap';
-import { PlusCircle, Gear, Settings, Send, Person, ChatDots } from 'react-bootstrap-icons';
+import { Stack, Button, Form, Card } from 'react-bootstrap';
+import { Send } from 'react-bootstrap-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './contentform.css';
 import Markdown from 'react-markdown'
+import axios from 'axios';
 
 const ContentForm = () => {
-    const [LLMInput, setLLMInput] = useState();
     const [LLMChat, setLLMChat] = useState([{
         "prompt": "Give me an example of a line graph",
         "title": "this is an example graph",
@@ -86,18 +84,18 @@ const ContentForm = () => {
 
     function getOutput(data) {
         console.log(JSON.stringify(data.llm_input))
-        axios.post("http://localhost:8000/api/llm", {
+        // fetch(process.env.REACT_APP_PROXY + "/api/llm", {
+        axios.post("/api/llm", {
+            mode: 'cors',
             headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': "*",
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
             },
-            proxy: {
-                host: 'localhost',
-                port: 8000,
-            },
+            proxy: process.env.REACT_APP_PROXY || "",
             data: JSON.stringify(data.llm_input),
         }).then(resp => {
-            if (resp.status != 200) {
+            if (resp.status !== 200) {
                 throw Error(JSON.stringify(resp));
             }
             console.log(JSON.parse(resp.data));
@@ -172,6 +170,7 @@ const ContentForm = () => {
                                                             if (isNumeric(value)) {
                                                                 row[i] = parseFloat(value);
                                                             }
+                                                            return row[i]
                                                         });
                                                         return row;
                                                     })}

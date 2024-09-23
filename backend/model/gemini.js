@@ -254,26 +254,32 @@ async function sendModel(req, res) {
     let prompt = req.body.data
     try {
         const tags = await alloy.getAlloys();
-        console.log(tags)
+      //   console.log(tags)
         
         const foundTags = await parseModel.generateContent(
             `
             Parse the prompt to find only alloys mentioned in the prompt and inside the alloy database.
-            
+            Important: Return nothing if there are no alloys mentioned
             These are the alloys inside the database ${tags}
 
             The prompt is given as`
             + prompt);
-        console.log(JSON.parse(foundTags.response.text()))
-        console.log(foundTags.response.text())
-        const getReferenceData = await alloyReference.getAlloyPropertiesByNames(JSON.parse(foundTags.response.text()));
-        console.log(getReferenceData)
-        ref = ""
-        if (getReferenceData !== null) {
-            console.log("printing")
-            ref = `Use this supplementary data to use about the tagged alloys to adjust and improve your response:
-                ${getReferenceData}`
+      //   console.log(JSON.parse(foundTags.response.text()))
+      //   console.log(foundTags.response.text())
+        
+        const parsedFoundTags = JSON.parse(foundTags.response.text());
+        if (!parsedFoundTags || parsedFoundTags.length === 0) {
+            console.log("No alloys found in the prompt.");
         }
+
+        const getReferenceData = await alloyReference.getAlloyPropertiesByNames(parsedFoundTags);
+        console.log(getReferenceData)
+         let ref = "";
+         if (getReferenceData && getReferenceData.length > 0) {
+            console.log("printing");
+            ref = `Use this supplementary data to use about the tagged alloys to adjust and improve your response:
+            ${getReferenceData}`;
+         }
 
         const result = await chat.sendMessage(
         `
